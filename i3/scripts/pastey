@@ -1,0 +1,15 @@
+#!/bin/python3
+
+import pyperclip
+import pyautogui
+import time
+
+# Read text from the clipboard
+clipboard_text = pyperclip.paste()
+
+# Delay to give you time to switch to the window where you want to type
+
+# Auto type letter by letter
+for letter in clipboard_text:
+    pyautogui.write(letter)
+    time.sleep(0.1) 

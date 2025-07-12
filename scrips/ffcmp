@@ -1,0 +1,17 @@
+ffcmp() {
+    if [ -d "$1" ]; then
+        for file in "$1"/*.mp4 "$1"/*.mov; do
+            [ -f "$file" ] || continue
+            output="${file%.*}_cmp.mp4"
+            ffmpeg -i "$file" -vcodec libx264 -crf 23 -preset slow -acodec aac -b:a 128k "$output"
+            echo "$file -> $output"
+        done
+    elif [ -f "$1" ]; then
+        output="${1%.*}_cmp.mp4"
+        ffmpeg -i "$1" -vcodec libx264 -crf 23 -preset slow -acodec aac -b:a 128k "$output"
+        echo "$1 -> $output"
+    else
+        echo "Usage: ffcmp <directory> or ffcmp <file>"
+    fi
+}
+

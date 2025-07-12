@@ -1,0 +1,9 @@
+#!/bin/bash
+while true; do
+  path=~/Pictures/wallpapers/randwalls/
+  file=$(ls $path | shuf | head -n 1)
+
+  feh --bg-fill $path/$file
+  sleep 300
+done
+

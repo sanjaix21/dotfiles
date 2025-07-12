@@ -1,0 +1,84 @@
+#!/bin/bash
+
+# === CONFIG ===
+WORK_MIN=25
+BREAK_MIN=5
+
+# Sound paths — choose distinct ones
+SOUND_WORK_START="/usr/share/sounds/timer/duck.wav"
+SOUND_BREAK_START="/usr/share/sounds/timer/duck.wav"
+SOUND_STATUS="/usr/share/sounds/freedesktop/stereo/dialog-information.oga"
+
+STATUS_FILE="/tmp/pomodoro.status"
+PID_FILE="/tmp/pomodoro.pid"
+
+# === UTILS ===
+notify() {
+    notify-send -u normal -i alarm-clock "🍅 Pomodoro Timer" "$1"
+}
+play_sound() {
+    mpv --really-quiet "$1" &>/dev/null &
+}
+
+# === STATUS CHECK ===
+show_status() {
+    if [[ ! -f "$STATUS_FILE" ]]; then
+        msg="Pomodoro not running"
+        echo "$msg"
+        notify "$msg"
+        play_sound "$SOUND_STATUS"
+        exit 0
+    fi
+
+    read -r mode start end < "$STATUS_FILE"
+    now=$(date +%s)
+    remaining=$((end - now))
+
+    if (( remaining < 0 )); then
+        msg="$mode finished"
+    else
+        mins=$(awk -v r="$remaining" 'BEGIN { printf "%.1f", r / 60 }')
+        msg="$mode ($mins min left)"
+    fi
+
+    echo "$msg"
+    notify "$msg"
+    play_sound "$SOUND_STATUS"
+}
+
+# === IF RUNNING, SHOW STATUS ===
+if [[ -f "$PID_FILE" ]] && kill -0 "$(cat "$PID_FILE" 2>/dev/null)" 2>/dev/null; then
+    show_status
+    exit 0
+fi
+
+# === CLEANUP ON EXIT ===
+trap "rm -f \"$STATUS_FILE\" \"$PID_FILE\"; exit" INT TERM
+
+# === START NEW POMODORO SESSION ===
+(
+    while true; do
+        # -- WORK SESSION --
+        mode="Working"
+        start=$(date +%s)
+        end=$((start + WORK_MIN * 60))
+        echo "$mode $start $end" > "$STATUS_FILE"
+        notify "Started: $WORK_MIN min focused work"
+        play_sound "$SOUND_WORK_START"
+        sleep "$((WORK_MIN * 60))"
+
+        # -- BREAK SESSION --
+        mode="Break"
+        start=$(date +%s)
+        end=$((start + BREAK_MIN * 60))
+        echo "$mode $start $end" > "$STATUS_FILE"
+        notify "Break time! Relax for $BREAK_MIN min"
+        play_sound "$SOUND_BREAK_START"
+        sleep "$((BREAK_MIN * 60))"
+    done
+) &
+echo $! > "$PID_FILE"
+disown
+
+exit 0
+

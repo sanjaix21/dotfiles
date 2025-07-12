@@ -1,0 +1,36 @@
+#!/bin/python3
+import json
+import random
+import os
+
+def change_grub_sddm_wall():
+    path = "/home/flightman/Pictures/wallpapers/randwalls/"
+
+    file = os.listdir(path)
+    file = random.choice(file)
+    file = path+file
+    os.system(f"ffmpeg -i {file} /tmp/background.png 2> /dev/null")
+    os.system(f"cp /tmp/background.png /boot/grub/themes/RuanMei/background.png")
+
+    file = os.listdir(path)
+    file = random.choice(file)
+    file = path+file
+    os.system(f"ffmpeg -i {file} /tmp/background2.png 2> /dev/null")
+    os.system(f"cp /tmp/background2.png /usr/share/sddm/themes/sugar-candy/images/background.png")
+
+def choose_sddm_quote():
+    
+    with open("/home/flightman/.scripts/quotes.json", 'r') as file:
+        data = json.load(file)
+    
+    while True:
+        quote_index = random.randint(0, len(data["quotes"]) - 1)
+
+        quote = data["quotes"][quote_index]["text"]
+        if len(quote) < 101:
+            break
+    new_quote = f"HeaderText=\"     {quote}\""
+    os.system(f"sed -i '120s/.*/{new_quote}/' /usr/share/sddm/themes/sugar-candy/theme.conf")
+
+choose_sddm_quote()
+change_grub_sddm_wall()

@@ -1,1 +1,10 @@
 old_files/
+# never commit secrets
+.ssh/
+*.key
+*.pem
+id_rsa*
+id_ed25519*
+.env
+*.bak*
+__pycache__/

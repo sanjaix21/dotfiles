@@ -21,3 +21,4 @@ Skipped on purpose (sudo / self-update): system-ota, toggle-powersave, gpu-profi
 TODO list:
 1. workspaces look ugly -> restyle
 2. (add more)
+- [ ] DEPENDENCIES (do not drop, island breaks without): quickshell, ttf-jetbrains-mono-nerd (island font), jq, python, python-gobject, networkmanager, bluez, libnotify, wireplumber, playerctl, brightnessctl, rofi, cliphist + wl-clipboard. Helper scripts in ~/.local/bin (list above) must ship in the `bin` stow package; QML in a `quickshell` stow package. Optional: python-pywal16-git (AUR).

@@ -1,9 +1,0 @@
-#!/bin/bash
-# hide noctalia media widget while playing; audio_vis shows itself then
-c=${NOCT_CFG:-$HOME/.config/noctalia/config.toml} p=
-playerctl -F status 2>/dev/null | while read -r s; do
-  [ "$s" = Playing ] && e=false || e=true
-  [ "$e" = "$p" ] && continue; p=$e
-  sed -i "/^\[widget.media\]/,/^\$/{/^enabled/d;/^\[widget.media\]/a enabled = $e
-}" "$c"
-done

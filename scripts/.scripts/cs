@@ -1,0 +1,74 @@
+#!/bin/python3
+import os
+import sys
+import uuid
+
+# Extensions to skip (non-text formats)
+SKIP_EXTENSIONS = {
+    ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".ico",        # Images
+    ".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv", ".webm",         # Videos
+    ".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma",                 # Audio
+    ".zip", ".tar", ".gz", ".7z", ".rar",                            # Archives
+    ".exe", ".bin", ".dll", ".so", ".dylib",                         # Binaries
+    ".pdf", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx",       # Non-plain docs
+    ".pyc", ".pyo"                                                   # Python cache files
+}
+
+# Folders to skip entirely
+SKIP_FOLDERS = {
+    ".git", ".svn", ".hg", "__pycache__", ".mypy_cache", ".pytest_cache"
+}
+
+MAX_FILE_SIZE_MB = 5  # Maximum file size to include
+
+def list_files_with_content(base_dir="."):
+    file_id = str(uuid.uuid4()).split('-')[0]
+    output_path = f"/tmp/{file_id}.txt"
+    all_output = []
+
+    for root, dirs, files in os.walk(base_dir):
+        # Remove unwanted directories from the walk
+        dirs[:] = [d for d in dirs if d not in SKIP_FOLDERS and not d.startswith('.')]
+
+        for filename in files:
+            # Skip hidden files
+            if filename.startswith('.'):
+                continue
+
+            # Skip non-text formats
+            ext = os.path.splitext(filename.lower())[1]
+            if ext in SKIP_EXTENSIONS:
+                continue
+
+            file_path = os.path.join(root, filename)
+
+            # Skip large files
+            try:
+                if os.path.getsize(file_path) > MAX_FILE_SIZE_MB * 1024 * 1024:
+                    continue
+            except OSError:
+                continue
+
+            # Read file content
+            try:
+                with open(file_path, "r", encoding="utf-8", errors="replace") as f:
+                    content = f.read()
+            except Exception as e:
+                content = f"[Error reading file: {e}]"
+
+            rel_path = os.path.relpath(file_path, base_dir)
+            all_output.append(f"[{rel_path}]\n{content if content.strip() else '(empty)'}\n")
+
+    output_str = "\n".join(all_output)
+    print(output_str)
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(output_str)
+
+    os.system(f"xclip -sel clip < {output_path}")
+    print(f"\nSaved to: {output_path} and copied to clipboard")
+
+if __name__ == "__main__":
+    target_dir = sys.argv[1] if len(sys.argv) > 1 else "."
+    list_files_with_content(target_dir)
+

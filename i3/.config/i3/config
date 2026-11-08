@@ -121,7 +121,7 @@ bindsym $mod+Shift+d exec --no-startup-id dmenu_run -i -nb '#191919' -nf '#fea63
 
 # start rofi full
 # bindsym $mod+d exec --no-startup-id "rofi -show drun -theme /home/flightman/.config/rofi/launchers/type-6/style-7-copy.rasi"
-bindsym $mod+d exec --no-startup-id "rofi -show drun -theme /home/flightman/.config/rofi/current.rasi
+bindsym $mod+d exec --no-startup-id "rofi -show drun -theme /home/flightman/.config/rofi/current.rasi"
 
 ################# how to exit, logoff, suspend, ...
 
@@ -129,20 +129,20 @@ bindsym $mod+d exec --no-startup-id "rofi -show drun -theme /home/flightman/.con
 
 set $mode_system System (k) lock, (l) logout, (u) suspend, (h) hibernate, (r) reboot, (s) shutdown
 mode "$mode_system" {
-    bindsym k exec --no-startup-id ~/.config/i3/scripts/i3exit.sh lock, mode "default"
-    bindsym l exec --no-startup-id ~/.config/i3/scripts/i3exit.sh logout, mode "default"
-    bindsym u exec --no-startup-id ~/.config/i3/scripts/i3exit.sh suspend, mode "default"
-    bindsym h exec --no-startup-id ~/.config/i3/scripts/i3exit.sh hibernate, mode "default"
-    bindsym r exec --no-startup-id ~/.config/i3/scripts/i3exit.sh reboot, mode "default"
-    bindsym s exec --no-startup-id ~/.config/i3/scripts/i3exit.sh shutdown, mode "default"
+    bindsym k exec --no-startup-id i3lock -c 000000, mode "default"
+    bindsym l exec --no-startup-id i3-msg exit, mode "default"
+    bindsym u exec --no-startup-id systemctl suspend, mode "default"
+    bindsym h exec --no-startup-id systemctl hibernate, mode "default"
+    bindsym r exec --no-startup-id systemctl reboot, mode "default"
+    bindsym s exec --no-startup-id systemctl poweroff, mode "default"
 
     # back to normal: Enter or Escape
     bindsym Return mode "default"
     bindsym Escape mode "default"
 }
 
-# ArcoLinux Logout
-bindsym Ctrl+Shift+l exec --no-startup-id archlinux-logout
+# system menu
+bindsym Ctrl+Shift+l mode "$mode_system"
 
 ################# reload changed configuration     
 
@@ -329,11 +329,11 @@ exec_always --no-startup-id python3 ~/.config/i3/scripts/alternating_layouts.py
 # applications that are not installed will not start
 # you may see a wheel - hashtag out things you do not want/need
 
-# Authentication dialog
-exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
-
 # bluetooth
 # exec --no-startup-id blueberry-tray
+
+# Authentication dialog
+exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 
 # network
 exec --no-startup-id nm-applet
@@ -344,14 +344,8 @@ exec_always --no-startup-id numlockx on
 # volume
 #exec --no-startup-id volumeicon
 
-# variety
-exec --no-startup-id variety
-
-# Conky
-exec --no-startup-id conky -c ~/.config/i3/scripts/conky.conkyrc
-
 # feh sets wallpaper
-exec --no-startup-id feh --bg-fill /home/flightman/Pictures/wallpapers/all/random_wal.jpg &
+exec --no-startup-id sh -c 'feh --bg-fill ~/Pictures/wallpapers/all/random_wal.jpg || feh --bg-fill ~/.config/i3/scripts/emergency-wall.png'
 
 # enable emergency wallpaper
 bindsym $mod+e exec --no-startup-id feh --bg-fill /home/flightman/.config/i3/scripts/emergency-wall.png &
@@ -364,25 +358,21 @@ exec --no-startup-id "polybar --config=~/.config/i3/scripts/polybar-config.ini"
 
 ################# system applications       
 
-exec --no-startup-id xfce4-power-manager &
+exec --no-startup-id xfce4-power-manager
 # ommitted next line to get super key to bring up the menu in xfce and avoid error then in i3
 # IF xfsettingsd is activated you can not change themes
 # exec --no-startup-id xfsettingsd &
-exec --no-startup-id /usr/lib/xfce4/notifyd/xfce4-notifyd &
+exec --no-startup-id /usr/lib/xfce4/notifyd/xfce4-notifyd
 
 ################# applications keyboard shortcuts  
 
 # not workspace related
 
-# conky
-bindsym $mod+g exec --no-startup-id conky-toggle
-
 # terminal
 bindsym $mod+Return exec --no-startup-id kitty;focus
-bindsym $mod+Shift+Return exec --no-startup-id urxvt;focus
 
 # System monitor
-bindsym control+Shift+Escape exec --no-startup-id xfce4-taskmanager;focus
+bindsym control+Shift+Escape exec --no-startup-id kitty -e btop;focus
 
 # Browser
 # bindsym $mod+w exec --no-startup-id  brave ;focus
@@ -396,19 +386,13 @@ bindsym $mod+Shift+KP_Enter exec --no-startup-id thunar;focus
 bindsym control+mod1+b exec --no-startup-id thunar;focus
 
 # mail application
-bindsym $mod+F9 exec --no-startup-id evolution;focus
 # bindsym $mod+F9 exec --no-startup-id geary;focus
 # bindsym control+mod1+e exec --no-startup-id geary;focus
 
-# music
-bindsym $mod+F10 exec --no-startup-id spotify;focus
-bindsym control+mod1+s exec --no-startup-id spotify;focus
-
 ################# screenshots                      
 
-bindsym Print exec --no-startup-id scrot 'ArcoLinux-%Y-%m-%d-%s_screenshot_$wx$h.jpg' -e 'mv $f $$(xdg-user-dir PICTURES)'
+bindsym Print exec --no-startup-id flameshot full
 bindsym Control+Print exec --no-startup-id xfce4-screenshooter
-bindsym Control+Shift+Print exec --no-startup-id gnome-screenshot -i
 bindsym $mod+Control+Print exec --no-startup-id flameshot gui
 # bindsym shift+Print exec --no-startup-id shutter
 
@@ -467,43 +451,14 @@ for_window [class="Terminator"] focus
 for_window [class="Urxvt"] focus
 for_window [class="Alacritty"] focus
 
-################# variety for wallpapers      
-
-# Variety keybindings mod1 = ALT
-# trash wallpaper
-bindsym mod1+t exec --no-startup-id variety -t
-# next wallpaper
-bindsym mod1+n exec --no-startup-id variety -n
-bindsym mod1+Right exec --no-startup-id variety -n
-# previous wallpaper
-bindsym mod1+p exec --no-startup-id variety -p
-bindsym mod1+Left exec --no-startup-id variety -p
-# favorite wallpaper
-bindsym mod1+f exec --no-startup-id variety -f
-# pause wallpaper
-bindsym mod1+Up exec --no-startup-id variety --pause
-# resume wallpaper
-bindsym mod1+Down exec --no-startup-id variety --resume
-
-################# variety with pywal for your wallpapers/colour schemes
-
-# next wallpaper
-bindsym mod1+Shift+n exec --no-startup-id variety -n && wal -i $(cat $HOME/.config/variety/wallpaper/wallpaper.jpg.txt)&
-# previous wallpaper
-bindsym mod1+Shift+p exec --no-startup-id variety -p && wal -i $(cat $HOME/.config/variety/wallpaper/wallpaper.jpg.txt)&
-# trash wallpaper
-bindsym mod1+Shift+t exec --no-startup-id variety -t && wal -i $(cat $HOME/.config/variety/wallpaper/wallpaper.jpg.txt)&
-# Update Wallpaper
-bindsym mod1+Shift+u exec --no-startup-id wal -i $(cat $HOME/.config/variety/wallpaper/wallpaper.jpg.txt)
-
 ################# audio settings                   
 
-bindsym XF86AudioRaiseVolume exec --no-startup-id "pactl set-sink-volume 0 +5%"
-bindsym Ctrl+Up exec --no-startup-id "pactl set-sink-volume 0 +5%"
-bindsym XF86AudioLowerVolume exec --no-startup-id "pactl set-sink-volume 0 -5%"
-bindsym Ctrl+Down exec --no-startup-id "pactl set-sink-volume 0 -5%"
-bindsym XF86AudioMute exec --no-startup-id "pactl set-sink-mute 0 toggle"
-bindsym Ctrl+Shift+m exec --no-startup-id "pactl set-sink-mute 0 toggle"
+bindsym XF86AudioRaiseVolume exec --no-startup-id "pactl set-sink-volume @DEFAULT_SINK@ +5%"
+bindsym Ctrl+Up exec --no-startup-id "pactl set-sink-volume @DEFAULT_SINK@ +5%"
+bindsym XF86AudioLowerVolume exec --no-startup-id "pactl set-sink-volume @DEFAULT_SINK@ -5%"
+bindsym Ctrl+Down exec --no-startup-id "pactl set-sink-volume @DEFAULT_SINK@ -5%"
+bindsym XF86AudioMute exec --no-startup-id "pactl set-sink-mute @DEFAULT_SINK@ toggle"
+bindsym Ctrl+Shift+m exec --no-startup-id "pactl set-sink-mute @DEFAULT_SINK@ toggle"
 # https://github.com/acrisci/playerctl/
 bindsym XF86AudioPlay exec --no-startup-id playerctl play-pause
 bindsym XF86AudioNext exec --no-startup-id playerctl next
@@ -608,7 +563,7 @@ mode "$mode_gaps_outer" {
 # exec_always --no-startup-id picom --config ~/.config/i3/scripts/picom.conf
 
 bindsym control+mod1+o exec --no-startup-id ~/.config/i3/scripts/picom-toggle.sh
-exec control+mod1+o exec --no-startup-id ~/.config/i3/scripts/picom-toggle.sh
+exec --no-startup-id ~/.config/i3/scripts/picom-toggle.sh
 
 ################# bar appearance                   
 
@@ -766,21 +721,11 @@ bindsym $mod+Shift+s exec --no-startup-id "flameshot full"
 # Launch cpupower-gui
 bindsym $mod+c exec --no-startup-id "cpupower-gui"
 
-# Launch wal
-exec_always --no-startup-id bash ~/.scripts/change-wal
-bindsym $mod+t exec --no-startup-id bash ~/.scripts/change-wal
+# wallpaper loop (every 5 min); $mod+t restarts it = new wallpaper now
+exec --no-startup-id ~/.scripts/change-wal
+bindsym $mod+t exec --no-startup-id "pkill -x change-wal; ~/.scripts/change-wal"
 
 # exec --no-startup-id mplayer -rootwin -nosound -loop 0 ~/Videos/background/f1_1.webm
 bindsym $mod+z exec --no-startup-id zathura
 
-exec --no-startup-id cp ~/.config/i3/scripts/polybar-config.ini.bkp ~/.config/i3/scripts/polybar-config.ini
-
-bindysym $mod+Shift+p excec --no-startup-id ./scripts/pastey 2> /dev/null
-
-bindsym $mod+i exec --no-startup-id ~/tools/clion-2023.2/bin/clion.sh 
-bindsym $mod+Shift+g exec --no-startup-id ghidra
-
-#turning on numlock on startup
-exec_always --no-startup-id "numlockx on"
-
-exec --no-startup-id "sudo change-wal-grub"
+bindsym $mod+Shift+p exec --no-startup-id ~/.config/i3/scripts/pastey 2> /dev/null

@@ -1,0 +1,130 @@
+# K2 package catalog. install.sh reads this file; edit here, not in install.sh.
+#
+#   Category | package | options -- note
+#
+# Official vs AUR, size, version and installed/update status are looked up live.
+# Options (space separated, all optional):
+#   on            checked by default when not installed yet
+#   de=a,b        only shown when one of these desktops is picked (hypr, i3, xfce)
+#   stow=a,b      stow packages in this repo that hold its config
+#   needs=a,b/c   packages it is useless without; b/c means either one (checked at the summary)
+#   role=a,b      job it does; two picks with the same role get a "redundant" warning
+#   svc=unit      systemd system unit to enable
+#   usvc=unit     systemd user unit to enable
+#   hook=file     script in hooks/ to run after install
+# Notes must not contain "|" or ",".
+
+Core | base-devel     | on
+Core | git            | on
+Core | stow           | on -- links configs from this repo
+Core | pacman-contrib | on svc=paccache.timer -- weekly cache cleanup + checkupdates
+Core | lightdm        | role=login svc=lightdm.service needs=lightdm-gtk-greeter/lightdm-slick-greeter -- login screen
+Core | lightdm-gtk-greeter | needs=lightdm
+Core | sddm           | role=login svc=sddm.service -- login screen
+
+Audio | pipewire       | on
+Audio | pipewire-pulse | on -- PulseAudio apps on pipewire
+Audio | pipewire-alsa  | on
+Audio | wireplumber    | on
+Audio | pavucontrol    | on -- volume mixer GUI
+Audio | playerctl      | on -- media keys
+Audio | easyeffects    | -- equalizer / effects
+
+Network & Bluetooth | networkmanager         | on svc=NetworkManager.service
+Network & Bluetooth | network-manager-applet | on de=i3,xfce needs=networkmanager -- tray icon
+Network & Bluetooth | bluez                  | on svc=bluetooth.service
+Network & Bluetooth | bluez-utils            | on needs=bluez -- bluetoothctl
+Network & Bluetooth | blueman                | needs=bluez -- bluetooth GUI
+
+Power | power-profiles-daemon | on role=power svc=power-profiles-daemon.service -- noctalia power profile switch
+Power | tlp                   | role=power svc=tlp.service -- more battery tuning; conflicts with power-profiles-daemon
+Power | upower                | on -- battery info for bars
+Power | thermald              | svc=thermald.service -- Intel CPUs only
+Power | powertop              | -- see what drains battery
+Power | cpupower-gui          | on -- CPU governor GUI (i3 Super+C)
+
+Fonts | ttf-jetbrains-mono-nerd | on -- kitty + noctalia font
+Fonts | noto-fonts              | on -- GTK/Qt UI font
+Fonts | noto-fonts-emoji        | on
+Fonts | noto-fonts-cjk          | -- Chinese/Japanese/Korean glyphs; large
+Fonts | ttf-meslo-nerd          | -- MesloLGM for zsh prompt glyphs
+Fonts | ttf-iosevka-nerd        | on de=i3 -- polybar font; very large
+
+Theme & Icons | papirus-icon-theme | on
+Theme & Icons | nwg-look           | de=hypr -- GTK theme settings on Wayland
+Theme & Icons | qt6ct              | -- Qt theme settings
+Theme & Icons | lxappearance       | de=i3 -- GTK theme settings on X11
+
+Terminal & Shell | zsh                            | on stow=zsh,scripts hook=zsh.sh -- also links ~/.scripts (on PATH via .zshrc)
+Terminal & Shell | python                         | on -- bulk-unzip / cs / lcn in ~/.scripts
+Terminal & Shell | ffmpeg                         | -- ffcmp in ~/.scripts
+Terminal & Shell | zsh-autosuggestions            | on needs=zsh -- sourced by .zshrc
+Terminal & Shell | zsh-history-substring-search   | on needs=zsh -- sourced by .zshrc
+Terminal & Shell | zsh-syntax-highlighting        | on needs=zsh -- sourced by .zshrc
+Terminal & Shell | kitty                          | on stow=kitty
+Terminal & Shell | neovim                         | on stow=nvim
+Terminal & Shell | fastfetch                      | on
+Terminal & Shell | btop                           | on stow=btop
+Terminal & Shell | ranger                         | on stow=ranger
+
+Multimedia | mpv               | on stow=mpv
+Multimedia | vlc               |
+Multimedia | zathura           | on stow=zathura
+Multimedia | zathura-pdf-mupdf | on needs=zathura -- PDF support for zathura
+Multimedia | imv               | -- image viewer
+
+Browser | google-chrome | on -- Super+W in hypr and i3
+Browser | firefox       |
+Browser | chromium      |
+
+Screenshots & Clipboard | flameshot           | on stow=flameshot
+Screenshots & Clipboard | grim                | on de=hypr
+Screenshots & Clipboard | slurp               | on de=hypr
+Screenshots & Clipboard | wl-clipboard        | on de=hypr
+Screenshots & Clipboard | xfce4-screenshooter | on de=i3,xfce
+
+Utilities | rofi                  | on stow=rofi -- launcher (Super+D)
+Utilities | thunar                | on -- file manager (Super+E / Super+F)
+Utilities | gnome-text-editor     | on de=hypr -- EDITOR in hypr variables.lua
+Utilities | gnome-calculator      | on de=hypr -- CALCULATOR in hypr variables.lua
+Utilities | visual-studio-code-bin | on
+Utilities | qbittorrent           |
+Utilities | brightnessctl         | on -- brightness keys
+Utilities | jq                    | on
+Utilities | libnotify             | on -- notify-send
+
+Hyprland | hyprland                    | on de=hypr stow=hypr
+Hyprland | noctalia                    | on de=hypr needs=hyprland role=bar,notifications,lock,wallpaper,clipboard -- bar + notifications + lock + wallpaper + clipboard
+Hyprland | xdg-desktop-portal-hyprland | on de=hypr needs=hyprland -- screen sharing + file pickers
+Hyprland | qt6-wayland                 | on de=hypr
+Hyprland | qt5-wayland                 | de=hypr -- only for old Qt5 apps
+Hyprland | hyprpicker                  | on de=hypr needs=hyprland -- Super+P color picker
+Hyprland | hyprpolkitagent             | on de=hypr needs=hyprland role=polkit -- password prompts for GUI apps
+Hyprland | waybar                      | de=hypr role=bar -- unused by your hypr config (noctalia is the bar)
+Hyprland | hyprpaper                   | de=hypr needs=hyprland role=wallpaper -- unused by your hypr config
+Hyprland | awww                        | de=hypr needs=hyprland role=wallpaper -- unused by your hypr config
+
+i3 | i3-wm               | on de=i3 stow=i3 needs=xorg-server
+i3 | xorg-server         | on de=i3,xfce
+i3 | xorg-xrandr         | on de=i3 -- monitor layout line in i3 config
+i3 | polybar             | on de=i3 needs=i3-wm role=bar
+i3 | picom               | on de=i3 -- compositor (Ctrl+Alt+O toggles)
+i3 | feh                 | on de=i3 role=wallpaper -- ~/.scripts/change-wal rotates every 5 min
+i3 | polkit-gnome        | on de=i3,xfce role=polkit stow=polkit-gnome -- password prompts for GUI apps (thunar mounts / cpupower-gui)
+i3 | i3lock              | on de=i3 role=lock -- lock in the Ctrl+Shift+L system menu
+i3 | numlockx            | on de=i3
+i3 | xfce4-notifyd       | on de=i3,xfce role=notifications
+i3 | xfce4-power-manager | on de=i3,xfce
+i3 | dmenu               | on de=i3 -- Super+Shift+D
+i3 | python-i3ipc        | on de=i3 -- alternating_layouts.py
+
+XFCE | xfce4-session            | on de=xfce needs=xorg-server
+XFCE | xfwm4                    | on de=xfce
+XFCE | xfce4-panel              | on de=xfce role=bar
+XFCE | xfdesktop                | on de=xfce role=wallpaper
+XFCE | xfce4-settings           | on de=xfce
+XFCE | xfce4-pulseaudio-plugin  | on de=xfce needs=xfce4-panel -- volume in panel
+XFCE | xfce4-whiskermenu-plugin | de=xfce needs=xfce4-panel -- start menu
+XFCE | xfce4-terminal           | de=xfce -- kitty works too
+XFCE | mousepad                 | de=xfce -- text editor
+XFCE | ristretto                | de=xfce -- image viewer

@@ -1,0 +1,38 @@
+#!/bin/python3
+
+import os
+import zipfile
+import sys
+
+# Check if the correct number of arguments is provided
+if len(sys.argv) != 2:
+    print("Usage: python unzip_all.py <directory>")
+    sys.exit(1)
+
+# Get the directory from command line argument
+directory = sys.argv[1]
+
+# Loop through each file in the directory
+for filename in os.listdir(directory):
+    if filename.endswith('.zip'):
+        # Create a new folder for each zip file
+        folder_name = os.path.splitext(filename)[0]
+        extract_path = os.path.join(directory, folder_name)
+        os.makedirs(extract_path, exist_ok=True)
+
+        # Construct full file path
+        file_path = os.path.join(directory, filename)
+
+        # Unzip the file
+        with zipfile.ZipFile(file_path, 'r') as zip_ref:
+            zip_ref.extractall(extract_path)
+
+        print(f'Extracted {filename} to {extract_path}')
+
+        # Remove the zip file after extraction
+        os.remove(file_path)
+    else:
+        print(f'Skipping non-zip file: {filename}')
+
+print('All zip files have been extracted and removed.')
+

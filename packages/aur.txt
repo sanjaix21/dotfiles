@@ -1,3 +1,0 @@
-# K2 AUR packages, one per line. Needs paru or yay.
-google-chrome
-visual-studio-code-bin
